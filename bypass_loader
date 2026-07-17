@@ -1,0 +1,11 @@
+// ==UserScript==
+// @name         Bypass link rút gọn (Loader)
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Tự động tải và chạy script bypass mới nhất từ GitHub
+// @author       MoewLover
+// @match        *://*/*
+// @grant        none
+// @run-at       document-start
+// @require      https://raw.githubusercontent.com/moewlover441-source/bypass/refs/heads/main/bypass1
+// ==/UserScript==
