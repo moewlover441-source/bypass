@@ -1,0 +1,343 @@
+// ==UserScript==
+// @name         Bypass một số link rút gọn
+// @namespace    http://tampermonkey.net/
+// @version      3.6
+// @description  Bypass link rút gọn.
+// @author       MoewLover
+// @match        *://*/*
+// @grant        none
+// @run-at       document-start
+// ==/UserScript==
+(function () {
+    'use strict';
+
+    const _0x9f = ['QFRlZXdMb3Zlcg==', 'bW9ld0xvdmVyU2NyaXB0TG9hZGVk', 'bW9ld19zYXZlZF9rZXk=', 'bW9ld19ieXBhc3NfZW5hYmxlZA==', 'bW9ld19zcGVlZF9mYWN0b3I=', 'bW9ld19wYW5lbF9sZWZ0', 'bW9ld19wYW5lbF90b3A='];
+    const _0xb64 = (i) => atob(_0x9f[i]);
+    const _0xk1 = {
+        loadedFlag: _0xb64(1),
+        savedKey: _0xb64(2),
+        bypassEnabled: _0xb64(3),
+        speedFactor: _0xb64(4),
+        panelLeft: _0xb64(5),
+        panelTop: _0xb64(6),
+    };
+    const _0xk2 = _0xb64(0); // key hợp lệ để mở khoá bypass
+
+    const _0xst = window.setTimeout;
+    const _0xsi = window.setInterval;
+
+    if (window[_0xk1.loadedFlag]) return;
+    window[_0xk1.loadedFlag] = true;
+
+    let _0xhk = localStorage.getItem(_0xk1.savedKey) === _0xk2;
+    let _0xbp = localStorage.getItem(_0xk1.bypassEnabled) !== 'false';
+    let _0xsf = parseInt(localStorage.getItem(_0xk1._0xsf)) || 100;
+    let _0xai = [];
+
+    const _0xssf = (value) => {
+        _0xsf = Math.max(2, Math.min(200, value));
+        localStorage.setItem(_0xk1._0xsf, _0xsf);
+    };
+
+    // Ghi đè setTimeout/setInterval để chạy nhanh hơn khi bypass bật
+    const _0xpt = () => {
+        if (window.setTimeout.__patched) return;
+
+        const _0xpst = function (fn, delay, ...args) {
+            const factor = (_0xhk && _0xbp) ? _0xsf : 1;
+            return _0xst(fn, delay / factor, ...args);
+        };
+        _0xpst.__patched = true;
+        window.setTimeout = _0xpst;
+
+        const _0xpsi = function (fn, delay, ...args) {
+            const factor = (_0xhk && _0xbp) ? _0xsf : 1;
+            return _0xsi(fn, delay / factor, ...args);
+        };
+        _0xpsi.__patched = true;
+        window.setInterval = _0xpsi;
+    };
+
+    _0xpt();
+    _0xsi(_0xpt, 1000);
+
+    const _0xcv = ['counter', 'timer', 'countdown', 'seconds', 'count', 'timeLeft', 'wait', 'clock', 'duration'];
+    const _0xcs = ['#btn-main', '#getlink', '.get-link', '#download', '.download-btn', '#landing-page'];
+    const _0xct = ['đy', 'click', 'get', 'nhận', 'tiếp tuc', 'continue'];
+
+    function _0xsbl() {
+        if (!_0xhk || !_0xbp) return;
+        _0xtbl();
+
+        const _0xzo = () => {
+            _0xcv.forEach(name => {
+                if (typeof window[name] === 'number' && window[name] > 0) {
+                    window[name] = 0;
+                }
+            });
+        };
+        _0xai.push(_0xsi(_0xzo, 150));
+
+        const _0xac = () => {
+            _0xcs.forEach(selector => {
+                const el = document.querySelector(selector);
+                if (el && !el.disabled && el.style.display !== 'none') {
+                    if (el.closest('[class*="captcha"]') || el.closest('[id*="captcha"]')) {
+                        return; // không đụng vào vùng captcha
+                    }
+                    const text = el.textContent.toLowerCase();
+                    if (_0xct.some(m => text.includes(m))) {
+                        el.click();
+                        _0xtbl();
+                    }
+                }
+            });
+        };
+        _0xai.push(_0xsi(_0xac, 500));
+    }
+
+    function _0xtbl() {
+        _0xai.forEach(id => clearInterval(id));
+        _0xai = [];
+    }
+
+    if (_0xhk && _0xbp) {
+        _0xsbl();
+    }
+
+    // --- UI: control panel ---
+    function _0xrps() {
+        const styleId = 'moew-panel-style';
+        if (document.getElementById(styleId)) return;
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = `
+#moew-control-panel{position:fixed!important;background-color:rgba(36,24,45,.96)!important;color:#fce7f3!important;padding:15px!important;border-radius:16px!important;z-index:2147483647!important;box-shadow:0 8px 32px rgba(181,57,243,.35)!important;font-family:'Segoe UI','Roboto',sans-serif!important;backdrop-filter:blur(10px)!important;border:2px solid rgba(244,114,182,.5)!important;width:240px!important;user-select:none!important;box-sizing:border-box!important}
+.moew-header{font-weight:700!important;font-size:14px!important;color:#f472b6!important;display:flex!important;justify-content:space-between!important;align-items:center!important;margin-bottom:12px!important;border-bottom:1px solid rgba(244,114,182,.2)!important;padding-bottom:6px!important;cursor:move!important}
+.moew-close{font-size:18px!important;color:#f472b6!important;cursor:pointer!important}
+.moew-row{margin:8px 0!important;display:flex!important;flex-direction:column!important;gap:5px!important}
+.moew-row-inline{margin:8px 0!important;display:flex!important;justify-content:space-between!important;align-items:center!important}
+.moew-row label,.moew-row-inline label{font-size:11px!important;color:#cbd5e1!important}
+.moew-input{background:rgba(255,255,255,.1)!important;border:1px solid rgba(244,114,182,.4)!important;border-radius:6px!important;padding:6px 8px!important;color:#fff!important;font-size:12px!important;outline:none!important}
+.moew-btn{background:#f472b6!important;color:#24182d!important;border:none!important;border-radius:6px!important;padding:6px!important;font-weight:700!important;cursor:pointer!important;font-size:12px!important;transition:background .2s!important}
+.moew-btn:hover{background:#f43f5e!important}
+.moew-badge{font-size:9px!important;padding:2px 6px!important;border-radius:12px!important;font-weight:700!important}
+.badge-active{background:#10b981!important;color:#fff!important}
+.badge-inactive{background:#ef4444!important;color:#fff!important}
+.switch{position:relative!important;display:inline-block!important;width:38px!important;height:20px!important}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute!important;cursor:pointer!important;top:0;left:0;right:0;bottom:0;background-color:#4b5563!important;transition:.3s!important;border-radius:20px!important}
+.slider:before{position:absolute!important;content:""!important;height:14px!important;width:14px!important;left:3px!important;bottom:3px!important;background-color:#fff!important;transition:.3s!important;border-radius:50%!important}
+input:checked+.slider{background-color:#f472b6!important}
+input:checked+.slider:before{transform:translateX(18px)!important}
+        `;
+        document.head.appendChild(style);
+    }
+
+    function _0xccp() {
+        const _0xpid = 'moew-control-panel';
+        let panel = document.getElementById(_0xpid);
+        if (panel) return;
+
+        panel = document.createElement('div');
+        panel.id = _0xpid;
+        document.body.appendChild(panel);
+
+        const _0xsvl = localStorage.getItem(_0xk1.panelLeft);
+        const _0xsvt = localStorage.getItem(_0xk1.panelTop);
+        if (_0xsvl && _0xsvt) {
+            panel.style.left = _0xsvl;
+            panel.style.top = _0xsvt;
+        } else {
+            panel.style.top = '100px';
+            panel.style.right = '25px';
+        }
+
+        _0xrps();
+
+        const _0xrpc = () => {
+            const _0xsb = _0xhk
+                ? `<span class="moew-badge badge-active">ĐÃ HOẠT ĐỘNG </span>`
+                : `<span class="moew-badge badge-inactive">NHẬP KEY</span>`;
+
+            panel.innerHTML = `
+                <div class="moew-header" id="moew-drag-header">
+                    <span>Bypass link rút gọn</span>
+                    <span class="moew-close" title="Ẩn tạm thời">&times;</span>
+                </div>
+                <div style="text-align: center; margin-bottom: 8px;">${_0xsb}</div>
+                ${!_0xhk ? `
+                <div class="moew-row">
+                    <label>Nhập Key Kích Hoạt:</label>
+                    <input type="text" id="moew-key-input" class="moew-input" placeholder="Nhập key để sử dụng...">
+                    <button id="moew-btn-active" class="moew-btn">XÁC NHẬN !</button>
+                </div>` : `
+                <div class="moew-row-inline">
+                    <label style="font-weight: 500;">Bật/Tắt Bypass:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="moew-toggle-bypass" ${_0xbp ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="moew-row">
+                    <label>Tốc độ Bypass (2 - 200x):</label>
+                    <input type="number" id="moew-speed-input" class="moew-input" value="${_0xsf}" min="2" max="200" ${!_0xbp ? 'disabled style="opacity:0.5;"' : ''}>
+                    <button id="moew-btn-save" class="moew-btn" ${!_0xbp ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>LƯU CÀI ĐẶT</button>
+                </div>`}
+                <div style="font-size: 9px; color: #94a3b8; text-align: center; margin-top: 8px;">https://t.me/Toolbypasslink</div>
+            `;
+
+            panel.querySelector('.moew-close').addEventListener('click', () => {
+                panel.style.display = 'none';
+            });
+
+            if (!_0xhk) {
+                panel.querySelector('#moew-btn-active').addEventListener('click', () => {
+                    const _0xiv = panel.querySelector('#moew-key-input').value.trim();
+                    if (_0xiv === _0xk2) {
+                        localStorage.setItem(_0xk1.savedKey, _0xiv);
+                        localStorage.setItem(_0xk1.bypassEnabled, 'true');
+                        _0xhk = true;
+                        _0xbp = true;
+                        _0xrpc();
+                        _0xsbl();
+                        _0xsn();
+                    } else {
+                        alert("Sai key !");
+                    }
+                });
+            } else {
+                panel.querySelector('#moew-toggle-bypass').addEventListener('change', (e) => {
+                    _0xbp = e.target.checked;
+                    localStorage.setItem(_0xk1.bypassEnabled, _0xbp ? 'true' : 'false');
+                    if (_0xbp) {
+                        _0xsbl();
+                        _0xsn();
+                    } else {
+                        _0xtbl();
+                    }
+                    _0xrpc();
+                });
+
+                panel.querySelector('#moew-btn-save').addEventListener('click', () => {
+                    const _0xns = parseInt(panel.querySelector('#moew-speed-input').value);
+                    if (isNaN(_0xns) || _0xns < 2 || _0xns > 200) {
+                        alert("Vui lòng chỉ nhập tốc độ trong khoảng từ 2 đến 200!");
+                    } else {
+                        _0xssf(_0xns);
+                        alert(`Đã cập nhật tốc độ mới: ${_0xns}x thành công!`);
+                        _0xsbl();
+                    }
+                });
+            }
+            _0xmd(panel.querySelector('#moew-drag-header'), panel);
+        };
+        _0xrpc();
+    }
+
+    function _0xmd(handle, target) {
+        if (handle.__dragBound) return;
+        handle.__dragBound = true;
+
+        let _0xdr = false;
+        let _0xox = 0;
+        let _0xoy = 0;
+
+        const _0xom = (e) => {
+            if (!_0xdr) return;
+            e.preventDefault();
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            let left = clientX - _0xox;
+            let top = clientY - _0xoy;
+            left = Math.max(0, Math.min(left, window.innerWidth - target.offsetWidth));
+            top = Math.max(0, Math.min(top, window.innerHeight - target.offsetHeight));
+            target.style.left = `${left}px`;
+            target.style.top = `${top}px`;
+            target.style.right = 'auto';
+        };
+
+        const _0xoe = () => {
+            if (!_0xdr) return;
+            _0xdr = false;
+            target.style.boxShadow = '0 8px 32px rgba(181, 57, 243, 0.35)';
+            localStorage.setItem(_0xk1.panelLeft, target.style.left);
+            localStorage.setItem(_0xk1.panelTop, target.style.top);
+
+            document.removeEventListener('mousemove', _0xom);
+            document.removeEventListener('mouseup', _0xoe);
+            document.removeEventListener('touchmove', _0xom);
+            document.removeEventListener('touchend', _0xoe);
+        };
+
+        const _0xosr = (e) => {
+            _0xdr = true;
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            _0xox = clientX - target.offsetLeft;
+            _0xoy = clientY - target.offsetTop;
+            target.style.boxShadow = '0 15px 40px rgba(181, 57, 243, 0.6)';
+
+            document.addEventListener('mousemove', _0xom);
+            document.addEventListener('mouseup', _0xoe);
+            document.addEventListener('touchmove', _0xom, { passive: false });
+            document.addEventListener('touchend', _0xoe);
+        };
+
+        handle.addEventListener('mousedown', _0xosr);
+        handle.addEventListener('touchstart', _0xosr, { passive: false });
+    }
+
+    function _0xsn() {
+        if (!_0xhk || !_0xbp) return;
+        const _0xnid = 'moew-bypass-notification';
+        let notif = document.getElementById(_0xnid);
+        if (notif) notif.remove();
+
+        notif = document.createElement('div');
+        notif.id = _0xnid;
+
+        const style = document.createElement('style');
+        style.innerHTML = `#moew-bypass-notification{position:fixed;top:25px;right:25px;background-color:rgba(36,24,45,.9);color:#fce7f3;padding:12px 18px;border-radius:12px;z-index:2147483647;box-shadow:0 8px 32px rgba(181,57,243,.25);font-family:'Segoe UI',sans-serif;backdrop-filter:blur(10px);border:1px solid rgba(244,114,182,.3);display:flex;align-items:center;gap:15px;opacity:0;transform:translateX(120%);transition:all .5s cubic-bezier(.25,1,.5,1)}#moew-bypass-notification.visible{opacity:1;transform:translateX(0)}.moew-icon{width:26px;height:26px;color:#f472b6}.moew-content{display:flex;flex-direction:column}.moew-title{font-size:15px;font-weight:600;color:#f472b6}.moew-message{font-size:13px;color:#cbd5e1}.moew-close{font-size:24px;color:#f472b6;cursor:pointer;padding:0 5px;margin-left:10px;font-weight:300}`;
+
+        notif.innerHTML = `
+            <div class="moew-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.486 2 2 6.486 2 12c0 2.213.722 4.26 1.94 5.922L3.13 21.03a1 1 0 0 0 1.34 1.34l3.108-.81C9.24 22.778 10.587 23 12 23c5.514 0 10-4.486 10-10S17.514 2 12 2zm3.5 11c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5zm-7 0c-.828 0-1.5-.672-1.5-1.5S7.672 10 8.5 10s1.5.672 1.5 1.5-.672 1.5-1.5 1.5z"/>
+                </svg>
+            </div>
+            <div class="moew-content">
+                <div class="moew-title">MoewLover Bypass</div>
+                <div class="moew-message">Moew Lover Bypass!</div>
+            </div>
+            <div class="moew-close" title="Đóng">&times;</div>
+        `;
+
+        document.head.appendChild(style);
+        document.body.appendChild(notif);
+
+        const _0xhn = () => {
+            notif.classList.remove('visible');
+            _0xst(() => {
+                notif.remove();
+                style.remove();
+            }, 600);
+        };
+
+        notif.querySelector('.moew-close').addEventListener('click', _0xhn);
+        _0xst(() => { notif.classList.add('visible'); }, 100);
+        _0xst(_0xhn, 3500);
+    }
+
+    function init() {
+        if (window.self !== window.top) return;
+        if (document.body) {
+            _0xccp();
+            _0xsn();
+        } else {
+            _0xst(init, 100);
+        }
+    }
+
+    init();
+}());
